@@ -37,13 +37,12 @@ namespace TRPG_SH
         bool IsSelected = false;
         public void _Setup(Player player)
         {
-
-                Console.WriteLine("원하시는 캐릭터의 이름을 입력해주세요");
-                string name = Console.ReadLine();
-                player.Name = name;
-                Console.Clear();
-
-            while (!IsSelected) { 
+            Console.WriteLine("원하시는 캐릭터의 이름을 입력해주세요");
+            string name = Console.ReadLine();
+            player.Name = name;
+            Console.Clear();
+            while (!IsSelected)
+            {
                 Console.WriteLine("원하시는 직업을 선택해주세요\n");
                 Console.WriteLine("1. 전사\n2. 마법사\n3. 궁수\n4. 도적");
                 string choice = Console.ReadLine();
@@ -76,6 +75,7 @@ namespace TRPG_SH
             }
         }
     }
+
 
     static class Lobby
     {
@@ -130,23 +130,15 @@ namespace TRPG_SH
         }
         public void ShowStatus()
         {
-            if (player == null) return;
-            Console.Clear();
             player.Display_Status();
         }
         public void ShowInventory()
         {
-            if (player == null) return;
-            Console.Clear();
             player.Display_Inventory();
-
         }
         public void ShowStore(Player player)
         {
-            if (player == null) return;
-            Console.Clear();
             store.Show_Store(player);
-
         }
     }
 
@@ -255,7 +247,7 @@ namespace TRPG_SH
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    Console.WriteLine($"- {i + 1}. {items[i].Item_Name} : {items[i].Item_Info}");
+                    Console.WriteLine($" - {i + 1}. {items[i].Item_Name} : {items[i].Item_Info}");
                 }
             }
         }
