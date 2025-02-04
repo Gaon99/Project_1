@@ -8,7 +8,9 @@ enum Lobby_info
 {
     Status=1,
     Inventory,
-    Store
+    Store,
+    Dungeon,
+    Rest
 }
 enum Classes
 {
@@ -27,6 +29,8 @@ namespace TRPG_SH
             Setup setup = new Setup();
             Player player = new Player();
             Store store = new Store();
+            Dungeon dungeon = new Dungeon();
+
             setup._Setup(player);
             Lobby._Lobby(player);
         }
@@ -55,16 +59,24 @@ namespace TRPG_SH
                     switch (classes) // 추후에 마개조(?)인지 아닌지 컨펌,, 직업마다, 세팅 설정
                     {
                         case Classes.전사:
-                            // 전사
+                            player.HP = 100;
+                            player.Stat_Offense = 10;
+                            player.Stat_Defense = 5;
                             break;
                         case Classes.마법사:
-                            // 마법사
+                            player.HP = 80;
+                            player.Stat_Offense = 15;
+                            player.Stat_Defense = 3;
                             break;
                         case Classes.궁수:
-                            //궁수
+                            player.HP = 90;
+                            player.Stat_Offense = 13;
+                            player.Stat_Defense = 4;
                             break;
                         case Classes.도적:
-                            //도적
+                            player.HP = 95;
+                            player.Stat_Offense = 12;
+                            player.Stat_Defense = 4;
                             break;
                     }
                 }
@@ -87,7 +99,7 @@ namespace TRPG_SH
                 Console.Clear();
                 Console.WriteLine("스파르타 마을에 오신 여러분 환영합니다.");
                 Console.WriteLine("이 곳에서 던전으로 들어가기 전 활동을 할 수 있습니다.\n");
-                Console.WriteLine("1. 상태 보기\n2. 인벤토리\n3. 상점\n");
+                Console.WriteLine("1. 상태 보기\n2. 인벤토리\n3. 상점\n4. 던전입장\n5. 휴식하기");
                 Console.Write("원하시는 행동을 입력해주세요. \n >> ");
 
                 string choice = Console.ReadLine();
@@ -102,11 +114,21 @@ namespace TRPG_SH
                         case Lobby_info.Status:
                             window.ShowStatus();
                             break;
+
                         case Lobby_info.Inventory:
                             window.ShowInventory();
                             break;
+
                         case Lobby_info.Store:
                             window.ShowStore(player);
+                            break;
+
+                        case Lobby_info.Dungeon:
+                            window.ShowDungeon();
+                            break;
+
+                        case Lobby_info.Rest:
+                            window.ShowRest(player);
                             break;
                     }
                 }
@@ -122,6 +144,9 @@ namespace TRPG_SH
     {
         public Player player;
         public Store store;
+        public Dungeon dungeon;
+        Rest rest = new Rest();
+
 
         public Window(Player player)
         {
@@ -140,18 +165,28 @@ namespace TRPG_SH
         {
             store.Show_Store(player);
         }
+        public void ShowDungeon()
+        {
+
+        }
+        public void ShowRest(Player player)
+        {
+            rest.Display_Rest(player);
+        }
     }
 
     class Player
     {
         public string Name { get; set; }
         public string Class { get; set; }
-        public int Level { get; private set; } = 1;
-        public int Stat_Offense { get; private set; } = 10;
-        public int Stat_Defense { get; private set; } = 5;
-        public float HP { get; private set; } = 100;
-        public int Gold { get; set; } = 1500;
+        public int Level { get; set; } = 1;
+        public int Stat_Offense { get; set; } = 10;
+        public int Stat_Defense { get; set; } = 5;
+        public float HP { get; set; } = 100;
+        public int Gold { get; set; } = 15000;
         public Inventory Inventory { get; set; } = new Inventory();
+        private Item EquippedWeapon { get; set; }
+        private Item EquippedArmor { get; set; }
         public void Display_Status()
         {
             while (true)
@@ -178,29 +213,81 @@ namespace TRPG_SH
                 }
             }
             Lobby._Lobby(this);
-
         }
+
         public void Display_Inventory()
         {
-            Console.WriteLine("인벤토리");
-            Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.\n");
-            Console.WriteLine("[아이템 목록]\n");
-            Inventory.Display();
-            Console.WriteLine("1. 장착 관리");
-            Console.WriteLine("0. 나가기");
-            Console.Write("원하시는 행동을 입력해주세요.\n>> ");
-            string choice = Console.ReadLine();
-            if (choice == "0")
+            while (true)
             {
-                Lobby._Lobby(this);
+                Console.Clear();
+                Console.WriteLine("인벤토리");
+                Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.\n");
+                Console.WriteLine("[아이템 목록]\n");
+                Inventory.Display();
+                Console.WriteLine("\n1. 장착 관리");
+                Console.WriteLine("0. 나가기");
+                Console.Write("원하시는 행동을 입력해주세요.\n>> ");
+                string choice = Console.ReadLine();
+                if (choice == "0")
+                {
+                    Lobby._Lobby(this);
+                }
+                else if (choice == "1")
+                {
+                    Inventory.Manage_Equip(this);
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 값을 입력했습니다.");
+                    Console.ReadKey();
+                }
             }
-            else if (choice == "1")
+        }
+
+        public void EquipItem(Item item)
+        {
+            if (item == null) return;
+
+            if (item.IsEquipped)
             {
-                Inventory.Manage_Equip();
+                if (item == EquippedWeapon)
+                {
+                    item.IsEquipped = false;
+                    Stat_Offense -= item.Stat_Offense;
+                }
+                else if (item == EquippedArmor)
+                {
+                    item.IsEquipped = false;
+                    Stat_Defense -= item.Stat_Defense;
+                }
+            }
+
+            else
+            {
+                if (item.Stat_Offense > 0)
+                {
+                    if (EquippedWeapon != null)
+                    {
+                        EquippedWeapon.IsEquipped = false;
+                        Stat_Offense -= EquippedWeapon.Stat_Offense;
+                    }
+                    EquippedWeapon = item;
+                    Stat_Offense += EquippedWeapon.Stat_Offense;
+                }
+                else if (item.Stat_Defense > 0)
+                {
+                    if (EquippedArmor != null)
+                    {
+                        EquippedArmor.IsEquipped = false;
+                        Stat_Defense -= EquippedArmor.Stat_Defense;
+                    }
+                    EquippedArmor = item;
+                    Stat_Defense += EquippedArmor.Stat_Defense;
+                }
+                item.IsEquipped = true;
             }
         }
     }
-
     class Item
     {
         public string Item_Name { get; set; }
@@ -209,32 +296,25 @@ namespace TRPG_SH
         public bool IsPurchased { get; set; }
         public int Stat_Offense { get; set; }
         public int Stat_Defense { get; set; }
+        public bool IsEquipped { get; set; }
         public bool IsArmor { get; set; }
-        public bool IsUsable { get; set; }
-        public void use()
+        public override string ToString()
         {
-            if (false)//usable item
-            {
-            }
-
-            else if (false) //equip item
-            {
-
-            }
-            else // 예외 처리
-            {
-
-            }
+            return $"{(IsEquipped ? "[E] " : "")}{Item_Name} | {Item_Info}";
         }
     }
 
     class Inventory
     {
-        private List<Item> items = new List<Item>();
+        public List<Item> items = new List<Item>();
 
         public void Add_Item(Item item)
         {
             items.Add(item);
+        }
+        public void Remove_item(Item item)
+        {
+            items.Remove(item);
         }
 
         public void Display()
@@ -247,22 +327,36 @@ namespace TRPG_SH
             {
                 for (int i = 0; i < items.Count; i++)
                 {
-                    Console.WriteLine($" - {i + 1}. {items[i].Item_Name} : {items[i].Item_Info}");
+                    Console.WriteLine($" - {i + 1}. {items[i]}");
                 }
             }
         }
-        public Item GetItem(int index)
+
+        public void Manage_Equip(Player player)
         {
-            if (index >= 0 && index < items.Count)
+            while (true)
             {
-                return items[index];
+                Console.Clear();
+                Console.WriteLine("인벤토리 - 장착 관리");
+                Console.WriteLine("보유 중인 아이템을 관리할 수 있습니다.\n");
+                Display();
+                Console.WriteLine("\n 0. 나가기\n");
+                Console.Write("원하시는 행동을 입력해주세요.\n>> ");
+                string choice = Console.ReadLine();
+                if (choice == "0")
+                {
+                    Lobby._Lobby(player);
+                }
+                if (int.TryParse(choice, out int index) && index > 0 && index <= items.Count)
+                {
+                    player.EquipItem(items[index - 1]);
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 값을 입력했습니다.");
+                    Console.ReadKey();
+                }
             }
-            return null;
-        }
-
-        public void Manage_Equip()
-        {
-
         }
     }
 
@@ -270,19 +364,20 @@ namespace TRPG_SH
     {
         private List<Item> Store_Items = new List<Item>()
     {
-        new Item { Item_Name = "수련자 갑옷", Stat_Defense = 5, Item_Info = "수련에 도움을 주는 갑옷입니다.", Price = 1000, IsPurchased = false,IsArmor = true, IsUsable=false },
-        new Item { Item_Name = "무쇠갑옷",Stat_Defense = 9, Item_Info = "무쇠로 만들어져 튼튼한 갑옷입니다.", Price = 2000, IsPurchased = false ,IsArmor = true, IsUsable=false },
-        new Item { Item_Name = "스파르타의 갑옷", Stat_Defense = 15, Item_Info = "스파르타의 전사들이 사용했다는 전설의 갑옷입니다.", Price = 3500, IsPurchased = false ,IsArmor = true, IsUsable = false},
-        new Item { Item_Name = "낡은 검", Stat_Offense = 2, Item_Info = "쉽게 볼 수 있는 낡은 검입니다.", Price = 600, IsPurchased = false ,IsArmor = false, IsUsable=false },
-        new Item { Item_Name = "청동 도끼", Stat_Offense = 5, Item_Info = "어디선가 사용됐던 도끼입니다.", Price = 1500, IsPurchased = false ,IsArmor = false, IsUsable=false },
-        new Item { Item_Name = "스파르타의 창", Stat_Offense = 7, Item_Info = "스파르타의 전사들이 사용했다는 전설의 창입니다.\t", Price = 2500, IsPurchased = false,IsArmor = false, IsUsable=false }
-    };
+        new Item { Item_Name = "수련자 갑옷", Stat_Defense = 5, Item_Info = "수련에 도움을 주는 갑옷입니다.", Price = 1000, IsPurchased = false,IsArmor=true},
+        new Item { Item_Name = "무쇠갑옷",Stat_Defense = 9, Item_Info = "무쇠로 만들어져 튼튼한 갑옷입니다.", Price = 2000, IsPurchased = false,IsArmor=true},
+        new Item { Item_Name = "스파르타의 갑옷", Stat_Defense = 15, Item_Info = "스파르타의 전사들이 사용했다는 전설의 갑옷입니다.", Price = 3500, IsPurchased = false,IsArmor=true},
+        new Item { Item_Name = "낡은 검", Stat_Offense = 2, Item_Info = "쉽게 볼 수 있는 낡은 검입니다.", Price = 600, IsPurchased = false,IsArmor=false},
+        new Item { Item_Name = "청동 도끼", Stat_Offense = 5, Item_Info = "어디선가 사용됐던 도끼입니다.", Price = 1500, IsPurchased = false ,IsArmor=false},
+        new Item { Item_Name = "스파르타의 창", Stat_Offense = 7, Item_Info = "스파르타의 전사들이 사용했다는 전설의 창입니다.", Price = 2500, IsPurchased = false,IsArmor=false},
+        };
         public void Show_Store(Player player)
         {
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("상점에 오신 것을 환영합니다!");
+                Console.WriteLine("상점");
+                Console.WriteLine("필요한 아이템을 얻을 수 있는 상점입니다.\n");
                 Console.WriteLine($"[보유 골드] {player.Gold} G\n");
                 Console.WriteLine("[아이템 목록]");
 
@@ -290,13 +385,14 @@ namespace TRPG_SH
                 {
                     var item = Store_Items[i];
                     string _Purchase = item.IsPurchased ? "구매 완료" : $"{item.Price}";
-                    if(item.IsArmor)
-                    Console.WriteLine($"{i + 1}. {item.Item_Name} | 방어력 {item.Stat_Defense} | {item.Item_Info} | {_Purchase}");
+                    if (item.IsArmor)
+                        Console.WriteLine($"{i + 1}. {item.Item_Name} | 방어력 {item.Stat_Defense} | {item.Item_Info} | {_Purchase}");
                     else
-                    Console.WriteLine($"{i + 1}. {item.Item_Name} | 공격력 {item.Stat_Offense} | {item.Item_Info} | {_Purchase}");
+                        Console.WriteLine($"{i + 1}. {item.Item_Name} | 공격력 {item.Stat_Offense} | {item.Item_Info} | {_Purchase}");
                 }
 
                 Console.WriteLine("\n1. 아이템 구매");
+                Console.WriteLine("2. 아이템 판매");
                 Console.WriteLine("0. 나가기");
 
                 Console.Write("원하시는 행동을 입력해주세요.\n>> ");
@@ -306,6 +402,10 @@ namespace TRPG_SH
                 {
                     Buy_Item(player);
                 }
+                else if(choice == "2")
+                {
+                    Display_Sell(player);
+                }
                 else if (choice == "0")
                 {
                     Lobby._Lobby(player);
@@ -314,6 +414,40 @@ namespace TRPG_SH
                 else
                 {
                     Console.WriteLine("잘못된 선택입니다.");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        public void Display_Sell(Player player)
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("상점 - 아이템 판매\n");
+                Console.WriteLine("필요한 아이템을 얻을수 있는 상점입니다.\n");
+                Console.WriteLine("[보유 골드]\n");
+                Console.WriteLine("[아이템 목록]");
+                Console.WriteLine($"{player.Gold} G\n");
+                for (int i = 0; i < player.Inventory.items.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {player.Inventory.items[i].Item_Name} - {player.Inventory.items[i].Price} G");
+                }
+                Console.WriteLine("\n0. 나가기");
+                Console.Write("원하시는 행동을 입력해주세요.\n>> ");
+                string choice = Console.ReadLine();
+                if (int.TryParse(choice, out int index) && index > 0 && index <= player.Inventory.items.Count)
+                {
+                    sell_item(player, choice);
+                }
+                else if (choice == "0")
+                {
+                    Show_Store(player);
+                }
+                else
+                {
+                    Console.WriteLine("잘못된 값을 입력했습니다.");
+                    Console.ReadKey();
                 }
             }
         }
@@ -353,6 +487,87 @@ namespace TRPG_SH
                 Console.ReadKey();
             }
         }
+        public void sell_item(Player player, string Selection)
+        {
+            if (int.TryParse(Selection, out int index) && index > 0 && index <= player.Inventory.items.Count)
+            {
+                Item selectedItem = player.Inventory.items[index - 1];
+                if(selectedItem.Stat_Defense > 0)
+                {
+                    player.Stat_Defense -= selectedItem.Stat_Defense;
+                    selectedItem.IsEquipped = false;
+                }
+                else if(selectedItem.Stat_Offense>0)
+                {
+                    player.Stat_Offense -= selectedItem.Stat_Offense;
+                    selectedItem.IsEquipped = false;
+                }
+                int Sell_Price = (int)(selectedItem.Price * 0.8);
+                player.Gold += Sell_Price;
+                player.Inventory.Remove_item(selectedItem);
+                selectedItem.IsPurchased = false;
+                Console.WriteLine("해당 아이템을 {0}G 에 판매하였습니다", Sell_Price);
+                Console.WriteLine("아무 키를 눌려 계속");
+                Console.ReadKey();
+
+            }
+        }
+    }
+    class Dungeon
+    {
+
+    }
+    class Rest
+    {
+
+        public void Display_Rest(Player player)
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("휴식하기");
+                Console.WriteLine("500 G 를 내면 체력을 회복할 수 있습니다.\n");
+                Console.WriteLine("[보유 골드]");
+                Console.WriteLine("{0} G\n", player.Gold);
+                Console.WriteLine("1. 휴식하기");
+                Console.WriteLine("0. 나가기\n");
+                Console.Write("원하시는 행동을 입력해주세요.\n>> ");
+                string Choice = Console.ReadLine();
+                if (Choice == "0")
+                {
+                    Lobby._Lobby(player);
+                }
+                else if (Choice == "1")
+                {
+                    _Rest(player);
+                    Console.WriteLine("체력이 모두 회복되었습니다.");
+                    Console.WriteLine("아무 키를 눌려 계속");
+                    Console.ReadKey();
+                }
+            }
+        }
+        public void _Rest(Player player)
+        {
+            if (player.Gold >= 500)
+            {
+
+                switch (player.Class)
+                {
+                    case "전사": player.HP = ((player.Level - 1) * 10) + 100; break;
+                    case "마법사": player.HP = ((player.Level - 1) * 10) + 80; break;
+                    case "궁수": player.HP = ((player.Level - 1) * 10) + 90; break;
+                    case "도적": player.HP = ((player.Level - 1) * 10) + 95; break;
+                }
+                player.Gold -= 500;
+            }
+
+            else
+            {
+                Console.WriteLine("보유 골드가 부족합니다.");
+            }
+        }
     }
 }
+
+
 
