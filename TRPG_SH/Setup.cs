@@ -12,6 +12,7 @@ namespace TRPG_SH
         bool IsSelected = false;
         public void _Setup(Player player)
         {
+            Console.Clear();
             Console.WriteLine("원하시는 캐릭터의 이름을 입력해주세요");
             string name = Console.ReadLine();
             player.Name = name;

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace TRPG_SH
 {
     class Player
     {
+        GameManager gameManager = new GameManager();
         public string Name { get; set; }
         public string Class { get; set; }
         public int Level { get; set; } = 1;
@@ -119,5 +121,28 @@ namespace TRPG_SH
                 item.IsEquipped = true;
             }
         }
+        public void GameOver()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine(" ________  ________  _____ ______   _______           ________  ___      ___ _______   ________     \r\n|\\   ____\\|\\   __  \\|\\   _ \\  _   \\|\\  ___ \\         |\\   __  \\|\\  \\    /  /|\\  ___ \\ |\\   __  \\    \r\n\\ \\  \\___|\\ \\  \\|\\  \\ \\  \\\\\\__\\ \\  \\ \\   __/|        \\ \\  \\|\\  \\ \\  \\  /  / | \\   __/|\\ \\  \\|\\  \\   \r\n \\ \\  \\  __\\ \\   __  \\ \\  \\\\|__| \\  \\ \\  \\_|/__       \\ \\  \\\\\\  \\ \\  \\/  / / \\ \\  \\_|/_\\ \\   _  _\\  \r\n  \\ \\  \\|\\  \\ \\  \\ \\  \\ \\  \\    \\ \\  \\ \\  \\_|\\ \\       \\ \\  \\\\\\  \\ \\    / /   \\ \\  \\_|\\ \\ \\  \\\\  \\| \r\n   \\ \\_______\\ \\__\\ \\__\\ \\__\\    \\ \\__\\ \\_______\\       \\ \\_______\\ \\__/ /     \\ \\_______\\ \\__\\\\ _\\ \r\n    \\|_______|\\|__|\\|__|\\|__|     \\|__|\\|_______|        \\|_______|\\|__|/       \\|_______|\\|__|\\|__|\r\n                                                                                                    \r\n                                                                                                    \r\n                                                                                                    ");
+                Console.WriteLine($"{Name}님의 캐릭터의 HP가 0이 되었습니다.");
+                Console.WriteLine("0.다시하기");
+                Console.WriteLine("1.종료하기");
+                Console.Write("\n원하시는 행동을 입력해주세요. \n >> ");
+                string choice = Console.ReadLine();
+                if (choice == "0")
+                {
+                    gameManager.Game_start();
+                }
+                else if(choice == "1")
+                {
+                    Environment.Exit(0);
+                }
+                  
+            }
+        }
     }
 }
+

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Data;
 using System.Numerics;
@@ -28,10 +29,30 @@ enum Dungeon_Diff
 
 namespace TRPG_SH
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
+            GameManager gameManager = new GameManager();
+            gameManager.Game_start();
+
+        }
+    }
+    class GameManager
+    {
+        private static GameManager gameManager;
+
+        public static GameManager Instance()
+        {
+            if(gameManager == null)
+            {
+                gameManager = new GameManager();
+            }
+            return Instance();
+        }
+        public void Game_start() 
+        {
+
             Setup setup = new Setup();
             Player player = new Player();
             Store store = new Store();
