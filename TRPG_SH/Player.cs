@@ -16,7 +16,7 @@ namespace TRPG_SH
         public int Stat_Offense { get; set; } = 10;
         public int Stat_Defense { get; set; } = 5;
         public float HP { get; set; } = 100;
-        public int Gold { get; set; } = 15000;
+        public int Gold { get; set; } = 1500;
         public Inventory Inventory { get; set; } = new Inventory();
         private Item EquippedWeapon { get; set; }
         private Item EquippedArmor { get; set; }
